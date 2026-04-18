@@ -1,0 +1,19 @@
+# macOS
+.DS_Store
+
+# Claude Code — lokale, benutzerspezifische Permissions (settings.json IST team-weit teilbar)
+.claude/settings.local.json
+
+# Lokale Plan-Dateien
+.claude/plans/
+
+# Editoren
+.idea/
+.vscode/
+*.swp
+
+# Node (doppelte Absicherung; ui-tests/.gitignore deckt das auch ab)
+node_modules/
+
+# Logs
+*.log
