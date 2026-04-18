@@ -18,20 +18,27 @@ export class LoginPage {
 
   async open(): Promise<void> {
     await this.browser.url('/');
+
+    // Element-Web startet entweder auf /#/welcome (mit "Sign in"-Button) oder
+    // direkt auf /#/login. Wir warten aktiv auf eines der beiden — das ist
+    // robuster gegen Service-Worker-/Asset-Loading-Delays als ein fester Sleep
+    // oder ein optionaler Klick ohne Wait.
+    const welcomeSignInXPath =
+      '//*[@role="button" or self::a or self::button][normalize-space()="Sign in"]';
     await this.browser.waitUntil(
-      async () => (await this.browser.getTitle()).length > 0,
-      { timeout: 30_000, timeoutMsg: 'Element-Web konnte nicht geladen werden' },
+      async () => {
+        const onLogin = await this.browser.$('#mx_LoginForm_username').isExisting();
+        if (onLogin) return true;
+        const onWelcome = await this.browser.$(welcomeSignInXPath).isExisting();
+        return onWelcome;
+      },
+      { timeout: 30_000, timeoutMsg: 'Weder Welcome- noch Login-Page wurde gerendert' },
     );
 
-    try {
-      const welcomeSignIn = await this.browser.$(
-        '//*[@role="button" or self::a or self::button][normalize-space()="Sign in"]',
-      );
-      if (await welcomeSignIn.isExisting()) {
-        await welcomeSignIn.click();
-      }
-    } catch {
-      // Bereits auf dem Login-Formular, kein Welcome-Button nötig.
+    const welcomeSignIn = await this.browser.$(welcomeSignInXPath);
+    if (await welcomeSignIn.isExisting()) {
+      await welcomeSignIn.click();
+      await this.browser.$('#mx_LoginForm_username').waitForDisplayed({ timeout: 30_000 });
     }
   }
 
