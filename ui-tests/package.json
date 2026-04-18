@@ -7,6 +7,7 @@
     "test:web": "wdio run config/wdio.web.conf.ts",
     "test:android": "wdio run config/wdio.android.conf.ts",
     "test:ios": "wdio run config/wdio.ios.conf.ts",
+    "synapse:setup": "bash scripts/setup-synapse.sh",
     "synapse:up": "docker compose up -d",
     "synapse:down": "docker compose down",
     "synapse:logs": "docker compose logs -f synapse"
