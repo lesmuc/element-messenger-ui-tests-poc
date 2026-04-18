@@ -32,6 +32,9 @@ if grep -qF "${MARKER}" "${YAML}"; then
   echo "→ Test-Einstellungen sind bereits in homeserver.yaml vorhanden, überspringe Patch."
 else
   echo "→ Hänge Test-Einstellungen an homeserver.yaml an..."
+  # Sicherstellen, dass der Host-User schreiben darf (falls generate gerade
+  # durchgelaufen ist und chown oben noch nicht griff, z.B. bei existing-but-patched Config).
+  docker run --rm -v "${DATA_DIR}:/data" alpine chown -R "$(id -u):$(id -g)" /data
   cat >> "${YAML}" <<'YAML'
 suppress_key_server_warning: true
 
@@ -57,5 +60,10 @@ rc_login:
     burst_count: 1000
 YAML
 fi
+
+# Ownership für den Synapse-Container (uid 991 intern) wieder herstellen,
+# damit der Homeserver seine eigene Config und den Daten-Ordner lesen und
+# schreiben kann. Idempotent — bei jedem Run ausführen.
+docker run --rm -v "${DATA_DIR}:/data" alpine chown -R 991:991 /data
 
 echo "✓ Synapse-Konfiguration bereit."
