@@ -137,8 +137,8 @@ export function userIdFor(username: string): string {
 /**
  * Interner Wrapper für authentifizierte Matrix-Client-API-Aufrufe.
  * Setzt das Bearer-Token aus den Credentials und prüft den Statuscode.
- * Wirft bei Non-200 eine Fehlermeldung mit dem API-Response-Body — das
- * hilft beim Debuggen, weil Matrix-Fehler oft nur in `errcode` und
+ * Bei Non-200 wird eine Exception mit dem API-Response-Body ausgelöst —
+ * das hilft beim Debuggen, weil Matrix-Fehler oft nur in `errcode` und
  * `error` stehen.
  */
 async function clientApi<T>(

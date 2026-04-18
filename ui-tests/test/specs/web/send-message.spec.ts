@@ -8,6 +8,7 @@ import {
 } from '../../helpers/synapse-admin';
 import { LoginPage } from '../../pageobjects/web/login.page';
 import { RoomPage } from '../../pageobjects/web/room.page';
+import { snap, resetSnapCounter } from '../../helpers/screenshots';
 
 describe('Send message end-to-end (two users, unencrypted)', () => {
   const uniq = Date.now();
@@ -37,6 +38,8 @@ describe('Send message end-to-end (two users, unencrypted)', () => {
   });
 
   it('alice sends a message, bob receives it via UI', async () => {
+    resetSnapCounter();
+
     const alice = multiremotebrowser.getInstance('alice') as WebdriverIO.Browser;
     const bob = multiremotebrowser.getInstance('bob') as WebdriverIO.Browser;
 
@@ -52,12 +55,17 @@ describe('Send message end-to-end (two users, unencrypted)', () => {
     await bobLogin.open();
     await bobLogin.signIn(bobName, password);
     await bobLogin.waitLoggedIn();
+    await snap('after-login');
 
     await aliceRoom.openRoomById(roomId);
     await bobRoom.openRoomById(roomId);
+    await snap('room-open');
 
     await aliceRoom.sendMessage(message);
+    await snap('message-sent');
+
     await bobRoom.waitForMessage(message);
+    await snap('message-received');
 
     const tile = await bob.$(
       `//*[contains(@class, "mx_EventTile")]//*[normalize-space()="${message}"]`,
