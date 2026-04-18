@@ -9,16 +9,18 @@
 
 ## Zusammenfassung
 
-| Client | Unit-Framework | Unit-Testzahl | UI/E2E-Framework | UI/E2E-Testzahl | Coverage (öffentlich) | CI-Trigger |
+| Client | Unit-Framework | Unit-Testzahl | UI/E2E-Framework | UI/E2E-Testzahl | Coverage (Unit) | CI-Trigger |
 |---|---|---|---|---|---|---|
-| **element-web** | Jest (`@nx/jest` ^22.5.0) | **165** (`13 *.test.ts` + `152 *.spec.ts`) | Playwright `^1.59.1` | **150** Specs in 48 Flow-Ordnern | SonarCloud — *nicht öffentlich* (Login erforderlich) | PR (Chrome only), Merge-Queue (alle Browser + Dendrite + Pinecone), Nightly |
-| **element-x-ios** | XCTest + SnapshotTesting `1.19.2` | **~150** Dateien in `UnitTests/Sources/` | XCUITest (16–18 Specs) + Preview/Snapshot (2) + Accessibility (3) + Integration (3+) | ~22–26 Suites + 100+ Snapshots | Codecov — *nicht öffentlich* (Badge vorhanden, Prozentwert nur eingeloggt) | Unit auf PR; UI/Accessibility/Integration: Nightly bzw. `workflow_dispatch` |
-| **element-x-android** | JUnit 4.13.2 + Turbine + Truth + Robolectric + Molecule + Kover | *Sichtbar im Tree: wenige Dutzend; Gesamtzahl via API nicht exakt zählbar* | Paparazzi `2.0.0-alpha04` (Preview-Scan) + Maestro (28 YAMLs) + connectedAndroidTest | 28 Maestro-Flows, automatische Paparazzi-Snapshots, androidTest optional | Codecov — *nicht öffentlich* | PR: `tests.yml` (Unit + Paparazzi) + `quality.yml`; Maestro manuell/label; Nightly: **keine Tests** |
+| **element-web** | Jest (`@nx/jest` ^22.5.0) | **165** (`13 *.test.ts` + `152 *.spec.ts`) | Playwright `^1.59.1` | **150** Specs in 48 Flow-Ordnern | **70.6 %** (SonarCloud Badge-API, `element-web`-Projekt) | PR (Chrome only), Merge-Queue (alle Browser + Dendrite + Pinecone), Nightly |
+| **element-x-ios** | XCTest + SnapshotTesting `1.19.2` | **~150** Dateien in `UnitTests/Sources/` | XCUITest (16–18 Specs) + Preview/Snapshot (2) + Accessibility (3) + Integration (3+) | ~22–26 Suites + 100+ Snapshots | **79 %** (Codecov Badge, Branch `main`) | Unit auf PR; UI/Accessibility/Integration: Nightly bzw. `workflow_dispatch` |
+| **element-x-android** | JUnit 4.13.2 + Turbine + Truth + Robolectric + Molecule + Kover | *Sichtbar im Tree: wenige Dutzend; Gesamtzahl via API nicht exakt zählbar* | Paparazzi `2.0.0-alpha04` (Preview-Scan) + Maestro (28 YAMLs) + connectedAndroidTest | 28 Maestro-Flows, automatische Paparazzi-Snapshots, androidTest optional | **81 %** (Codecov Badge, Branch `main`) | PR: `tests.yml` (Unit + Paparazzi) + `quality.yml`; Maestro manuell/label; Nightly: **keine Tests** |
+
+> **Hinweis zu den Coverage-Zahlen:** Diese Werte stammen aus den öffentlichen Badge-SVGs (SonarCloud bzw. Codecov) und beziehen sich **nur auf Unit-Tests** (Kover/Jest/`xccov`-LLVM). E2E-/UI-Tests (Playwright, Maestro, XCUITest) werden nicht instrumentiert und fließen nicht in diese Prozente ein. Die Dashboards selbst (klickbare Detail-Ansichten auf SonarCloud/Codecov) erfordern weiterhin Login.
 
 **Kern-Beobachtungen auf einen Blick:**
 - **Webdriver.io ist in keinem der drei Repos im Einsatz** — bestätigt durch `package.json`- und Dependency-Checks.
-- Coverage-Prozentwerte sind bei allen drei Clients **nicht öffentlich** einsehbar — lediglich Badges/Links auf private Dashboards.
-- Nur **element-web** hat einen verbindlichen Coverage-Gate (≥80 % für neuen Code in CONTRIBUTING.md). iOS dokumentiert „wird irgendwann enforced", Android nennt keinen Mindestwert.
+- **Coverage-Prozente liegen beieinander:** Web 70.6 %, iOS 79 %, Android 81 %. Die Dashboards selbst sind nicht öffentlich, die Badge-SVGs aber doch.
+- Nur **element-web** hat einen verbindlichen Coverage-Gate (≥80 % für neuen Code in CONTRIBUTING.md) — und liegt mit 70.6 % **darunter** im Gesamtschnitt. Die 80 %-Regel bezieht sich allerdings auf *neuen* Code, nicht den Gesamt-Stand. iOS dokumentiert „wird irgendwann enforced", Android nennt keinen Mindestwert.
 - Die Testpyramide ist pro Client unterschiedlich tief: Web hat die umfangreichste E2E-Schicht, iOS die ausgefeilteste Snapshot-Disziplin, Android setzt stark auf Fakes und auf Maestro für User-Flows.
 
 ---
@@ -44,8 +46,10 @@
 - **Merge-Queue:** eigener Workflow mit Conditional-Skips (license/cla-Check wird dort als „extraordinarily flaky" kommentiert). — [`merge-queue.yaml`](https://raw.githubusercontent.com/element-hq/element-web/develop/.github/workflows/merge-queue.yaml)
 
 ### Coverage
-- **SonarCloud:** Badge-URL zeigt auf [`sonarcloud.io/summary/new_code?id=element-web`](https://sonarcloud.io/summary/new_code?id=element-web) — Dashboard erfordert Login, Prozentwert **nicht öffentlich einsehbar**.
+- **SonarCloud — 70.6 %** (Unit-Test-Coverage, Gesamt-Projekt). — [Badge-API](https://sonarcloud.io/api/project_badges/measure?project=element-web&metric=coverage)
+- Dashboard [`sonarcloud.io/summary/new_code?id=element-web`](https://sonarcloud.io/summary/new_code?id=element-web) erfordert Login für Detail-Metriken (neuer-Code-vs.-Gesamt, Branches, Quality-Gates).
 - **CONTRIBUTING-Regel:** *"When writing unit tests, please aim for a high level of test coverage for new code — 80 % or greater. If 80 % cannot be achieved, please document why in the pull request."* — [`CONTRIBUTING.md`](https://raw.githubusercontent.com/element-hq/element-web/develop/CONTRIBUTING.md)
+- Einordnung: 70.6 % ist der **Gesamt-Schnitt**; die 80-%-Regel gilt nur für *neuen* Code je PR. Beide sind konsistent — Altcode zieht den Schnitt nach unten, neuer Code wird auf ≥ 80 % gehalten.
 - Zusätzlich verbindlich: neue User-Facing-Features benötigen „comprehensive unit tests written in Jest" + „happy path end-to-end tests"; Bugfixes mindestens einen Unit- oder E2E-Test. (Zitat aus derselben Datei.)
 
 ### Contributor-Doku
@@ -123,8 +127,10 @@ await expect(page.getByText("You're signed out")).toBeVisible();
 - **Test-Skripte:** `ci_scripts/` (`ci_common.sh`, `ci_post_clone.sh`, `ci_post_xcodebuild.sh`). — [Tree](https://github.com/element-hq/element-x-ios/tree/develop/ci_scripts)
 
 ### Coverage
-- **Codecov:** Badge-Link `https://codecov.io/gh/element-hq/element-x-ios` — Projektseite existiert, aktueller Wert **nicht öffentlich einsehbar** (Login-Wall).
+- **Codecov — 79 %** (Unit-Coverage, Branch `main`). — [Badge](https://codecov.io/gh/element-hq/element-x-ios/branch/main/graph/badge.svg)
+- Branch-Detail: Die `develop`-Badge zeigt `unknown` (Codecov trackt aktuell nur `main`). Das Repo hat `develop` als Default-Branch im Tree, aber CI-Coverage-Upload läuft auf `main`.
 - **CONTRIBUTING.md:** *"We gather coverage reports on every PR through Codecov; will eventually start enforcing minimums"* — **aktuell kein enforced Mindestwert.** — [`CONTRIBUTING.md`](https://raw.githubusercontent.com/element-hq/element-x-ios/develop/CONTRIBUTING.md)
+- Dashboard [`codecov.io/gh/element-hq/element-x-ios`](https://codecov.io/gh/element-hq/element-x-ios) erfordert für Detail-Ansicht Login.
 
 ### Qualität
 
@@ -193,9 +199,10 @@ UITests sind flow-orientierter (mehrschrittige Navigations- und State-Prüfungen
 - **Parallel-Gradle:** `maxParallelForks = (cores / 2).coerceAtLeast(1)`.
 
 ### Coverage
-- **Codecov:** [`codecov.io/github/element-hq/element-x-android`](https://codecov.io/github/element-hq/element-x-android) — Wert **nicht öffentlich**.
-- **Kover lokal:** nur Unit-Tests zählen; Maestro-Ergebnisse gehen nicht in Coverage ein.
+- **Codecov — 81 %** (Unit-Coverage via Kover, Branch `main`). — [Badge](https://codecov.io/gh/element-hq/element-x-android/graph/badge.svg?branch=main)
+- **Kover** aggregiert nur Unit-Tests; Maestro-, Paparazzi-, und androidTest-Ergebnisse fließen **nicht** in diese 81 % ein.
 - **CONTRIBUTING:** kein expliziter Coverage-Mindestwert genannt; Architektur-Namenkonventionen sind via Konsist durchgesetzt.
+- Dashboard [`codecov.io/github/element-hq/element-x-android`](https://codecov.io/github/element-hq/element-x-android) erfordert für Detail-Ansicht Login.
 
 ### Contributor-Doku
 - [`CONTRIBUTING.md`](https://raw.githubusercontent.com/element-hq/element-x-android/main/CONTRIBUTING.md): *"Make sure `./gradlew test` runs without error"*; *"You should consider adding Unit tests … and integration tests (AndroidTest)"*; Testen auf API 23+ empfohlen.

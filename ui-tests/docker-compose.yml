@@ -1,0 +1,27 @@
+services:
+  synapse:
+    image: matrixdotorg/synapse:latest
+    container_name: element-test-synapse
+    environment:
+      SYNAPSE_SERVER_NAME: localhost
+      SYNAPSE_REPORT_STATS: "no"
+    volumes:
+      - ./synapse/data:/data
+    ports:
+      - "8008:8008"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8008/health || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  element-web:
+    image: vectorim/element-web:latest
+    container_name: element-test-web
+    depends_on:
+      synapse:
+        condition: service_healthy
+    volumes:
+      - ./element-web/config.json:/app/config.json:ro
+    ports:
+      - "8080:80"

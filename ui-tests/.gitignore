@@ -1,0 +1,13 @@
+node_modules/
+synapse/data/
+.wdio-logs/
+allure-results/
+logs/
+*.log
+.DS_Store
+
+# Phase 2/3 — Binaries sind groß und/oder signiert, gehören nicht ins Git
+apps/android/*.apk
+apps/ios/*.app
+apps/ios/*.ipa
+!apps/**/.gitkeep
