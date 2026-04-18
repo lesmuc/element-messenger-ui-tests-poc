@@ -21,6 +21,11 @@ mkdir -p "${DATA_DIR}"
 if [ ! -f "${YAML}" ]; then
   echo "→ Erzeuge Synapse-Basiskonfiguration via 'docker compose run generate'..."
   (cd "${HERE}" && docker compose run --rm synapse generate)
+  # Synapse setzt im Container die Ownership von /data auf uid 991 (synapse-User).
+  # Auf Docker Desktop/macOS wird das per UID-Mapping transparent gemacht, auf
+  # nativem Linux-Docker (z.B. GitHub-Runner) nicht — dort gehört die Datei dann
+  # 991:991 und der Host-User kann nichts mehr reinpatchen. Ownership zurückgeben.
+  docker run --rm -v "${DATA_DIR}:/data" alpine chown -R "$(id -u):$(id -g)" /data
 fi
 
 if grep -qF "${MARKER}" "${YAML}"; then
