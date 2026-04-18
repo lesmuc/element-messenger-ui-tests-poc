@@ -9,7 +9,7 @@ import { sharedConfig } from './wdio.shared.conf';
  *   2. npx appium driver install uiautomator2
  *   3. Debug-APK unter apps/android/element-x.apk ablegen
  *   4. Die auskommentierten Capabilities- und Services-Blöcke unten aktivieren
- *   5. Den onPrepare-Throw entfernen
+ *   5. Die onPrepare-Exception entfernen
  *   6. Android-Page-Objects unter test/pageobjects/android/ anlegen
  *   7. Specs unter test/specs/android/ anlegen
  */
@@ -38,7 +38,7 @@ export const config: Options.Testrunner = {
       'wdio.android.conf.ts: Phase-1-Platzhalter — Appium ist noch nicht eingerichtet.\n' +
       'Siehe Plan Phase 2: @wdio/appium-service + appium installieren, uiautomator2-Driver\n' +
       'installieren, APK unter apps/android/ ablegen, Capabilities + Services einkommentieren,\n' +
-      'diesen Throw entfernen.',
+      'diese Exception entfernen.',
     );
   },
 } as Options.Testrunner;

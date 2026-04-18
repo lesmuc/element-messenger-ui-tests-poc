@@ -12,7 +12,7 @@ import { sharedConfig } from './wdio.shared.conf';
  *      Cleartext für localhost erlaubt.
  *   4. Build-Output unter apps/ios/element-x.app (oder .ipa) ablegen
  *   5. Die auskommentierten Capabilities- und Services-Blöcke unten aktivieren
- *   6. Den onPrepare-Throw entfernen
+ *   6. Die onPrepare-Exception entfernen
  *   7. iOS-Page-Objects unter test/pageobjects/ios/ anlegen
  *   8. Specs unter test/specs/ios/ anlegen
  */
@@ -40,7 +40,7 @@ export const config: Options.Testrunner = {
       'wdio.ios.conf.ts: Phase-1-Platzhalter — Appium ist noch nicht eingerichtet.\n' +
       'Siehe Plan Phase 3: @wdio/appium-service + appium installieren, xcuitest-Driver\n' +
       'installieren, Debug-.app unter apps/ios/ ablegen, Capabilities + Services einkommentieren,\n' +
-      'diesen Throw entfernen.',
+      'diese Exception entfernen.',
     );
   },
 } as Options.Testrunner;

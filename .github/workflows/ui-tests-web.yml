@@ -65,6 +65,35 @@ jobs:
       - name: wdio-Tests ausführen
         run: npm run test:web
 
+      - name: Screenshots hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ui-tests/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Screenshot-Übersicht in Step-Summary schreiben
+        if: always()
+        run: |
+          if [ -d screenshots ] && [ "$(ls -A screenshots 2>/dev/null)" ]; then
+            {
+              echo "## 📸 Screenshots"
+              echo ""
+              echo "| # | Datei | Größe |"
+              echo "| --- | --- | ---: |"
+              for f in $(ls -1 screenshots | sort); do
+                size=$(wc -c < "screenshots/$f" | tr -d ' ')
+                echo "| | \`$f\` | ${size} B |"
+              done
+              echo ""
+              echo "→ Download über das Artifact **screenshots** auf dieser Run-Seite."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Keine Screenshots erzeugt." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Logs bei Fehlschlag hochladen
         if: failure()
         uses: actions/upload-artifact@v4

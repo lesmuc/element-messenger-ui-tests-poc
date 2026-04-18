@@ -98,7 +98,7 @@ npx appium driver install uiautomator2
 
 Dann in `config/wdio.android.conf.ts`:
 - Die kommentierten Capabilities + `services`-Blöcke aktivieren
-- Den `onPrepare`-Throw entfernen
+- Die `onPrepare`-Exception entfernen
 
 Page-Objects unter `test/pageobjects/android/` mit gleichen Methodensignaturen wie Web,
 Selectors per UIAutomator (`android=new UiSelector()...`).
@@ -116,7 +116,7 @@ npx appium driver install xcuitest
 # Debug-.app von element-x-ios nach apps/ios/element-x.app legen
 ```
 
-Dann in `config/wdio.ios.conf.ts`: Capabilities + Services aktivieren, Throw entfernen.
+Dann in `config/wdio.ios.conf.ts`: Capabilities + Services aktivieren, Exception entfernen.
 
 iOS-Simulator erreicht den Host-Synapse direkt unter `http://localhost:8008`.
 Die Debug-Build braucht `NSAppTransportSecurity` mit Exception für `localhost`.
