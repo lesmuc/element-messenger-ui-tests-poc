@@ -14,15 +14,12 @@ Webdriver.io + TypeScript UI-Tests gegen Element-Web, aufgebaut als Multi-Platfo
 ```bash
 cd ui-tests
 npm install
+npm run synapse:setup   # erzeugt + patcht synapse/data/homeserver.yaml (idempotent)
 ```
 
-Die Synapse-Konfiguration ist bereits im Repo (`synapse/data/homeserver.yaml`).
-Wurde sie gelöscht, neu generieren:
-
-```bash
-docker compose run --rm synapse generate
-# dann homeserver.yaml anpassen: enable_registration, encryption off, etc.
-```
+`synapse:setup` ruft intern `docker compose run --rm synapse generate` auf und
+hängt die Test-Einstellungen (registration on, encryption off, hohe Rate-Limits)
+an. Mehrfach aufrufbar, bestehende Konfig wird nicht zerstört.
 
 ## Tests ausführen
 
@@ -31,6 +28,12 @@ npm run synapse:up      # Synapse + Element-Web starten
 npm run test:web        # wdio-Testsuite laufen lassen (headless)
 npm run synapse:down    # aufräumen
 ```
+
+## CI
+
+Der Workflow `.github/workflows/ui-tests-web.yml` führt dieselbe Kette auf
+jedem PR und Push auf `master`/`main` aus (Ubuntu-Runner). Änderungen
+außerhalb von `ui-tests/` triggern ihn nicht.
 
 Mit sichtbarem Browser:
 
