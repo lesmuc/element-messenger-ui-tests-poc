@@ -23,6 +23,12 @@ PORT_BOB=5556
 SYSTEM_IMAGE="${ANDROID_SYSTEM_IMAGE:-system-images;android-36;google_apis;arm64-v8a}"
 mkdir -p "${HERE}/logs"
 
+# adb-Daemon neu starten — zwischen Runs können verwaiste Client-Connections
+# im Pool hängen, was spätere adb-Calls (vor allem parallele) stochastisch
+# timeouten lässt. Ein sauberer Daemon-Start ist billig und robust.
+adb kill-server > /dev/null 2>&1 || true
+adb start-server > /dev/null 2>&1
+
 ensure_avd() {
   local name="$1"
   if emulator -list-avds | grep -qx "$name"; then

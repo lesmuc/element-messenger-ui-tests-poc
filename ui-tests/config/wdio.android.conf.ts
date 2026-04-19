@@ -18,6 +18,9 @@ function sessionCap(udid: string, systemPort: number) {
     'appium:app': apkPath,
     'appium:autoGrantPermissions': true,
     'appium:newCommandTimeout': 300,
+    // Zwei parallele Sessions belasten den adb-Server — Default 20 s ist
+    // dafür zu knapp. Appium selbst retried intern mehrmals.
+    'appium:adbExecTimeout': 60_000,
     // Pro Session eigener systemPort — sonst kollidieren parallele UIAutomator2-Bridges.
     'appium:systemPort': systemPort,
     'appium:skipDeviceInitialization': true,

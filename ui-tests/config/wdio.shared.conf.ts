@@ -14,7 +14,9 @@ export const sharedConfig: Partial<Options.Testrunner> = {
   logLevel: 'warn',
   bail: 0,
   waitforTimeout: 30_000,
-  connectionRetryTimeout: 120_000,
+  // Session-Create kann auf langsameren Mobile-Runnern mehrere Minuten dauern,
+  // wenn Appium intern adb-Retries läuft. Default 120 s ist dann knapp.
+  connectionRetryTimeout: 240_000,
   connectionRetryCount: 3,
 
   // Bei Fehlschlag Screenshots aller aktiven Sessions — Test-Titel im Dateinamen.
