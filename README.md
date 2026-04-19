@@ -1,5 +1,25 @@
 # Proof-of-Concept für plattformübergreifende UI-Tests der Element-Messenger-Clients mit Webdriver.io + Appium
 
+## Hintergrund
+
+Dieser POC ist über ein Wochenende im Rahmen meiner Bewerbung als Senior
+Test Automation Engineer für den BundesMessenger entstanden. Er demonstriert
+die Methodik und den Werkzeug-Stack, der sich direkt auf den BundesMessenger
+übertragen lässt.
+
+### Warum Element statt BundesMessenger?
+
+BundesMessenger ist ein Fork von Element-Web / Element-X — Element ist
+Open Source und frei verfügbar.
+
+### Warum unverschlüsselte Räume im POC?
+
+Fokus liegt auf dem UI-Flow (Composer, Timeline, Invite-Annahme).
+E2EE-Tests benötigen zusätzliches Crypto-Setup (Cross-Signing,
+Device-Verification) im `before`-Hook, ändern aber weder Page Objects
+noch Specs. Selbstverständlich nur für den POC — produktiv käme das
+nicht in Frage.
+
 ## Inhalt
 
 - **[`ui-tests/`](./ui-tests/README.md)** — Proof-of-Concept UI-Tests, komplett
