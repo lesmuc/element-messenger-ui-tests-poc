@@ -48,8 +48,10 @@ jobs:
       - name: npm-Abhängigkeiten installieren
         run: npm ci
 
-      - name: Synapse-Stack sicherstellen (idempotent)
+      - name: Synapse-Stack frisch starten (Runner ist dediziert)
         run: |
+          docker compose down -v || true
+          rm -rf synapse/data
           npm run synapse:setup
           docker compose up -d
           for i in $(seq 1 30); do
