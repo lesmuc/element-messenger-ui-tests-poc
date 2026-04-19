@@ -5,7 +5,7 @@ import { sharedConfig } from './wdio.shared.conf';
 // Muss vor sharedConfig-Import gesetzt sein (screenshots.ts liest beim Laden).
 process.env.UI_TEST_PLATFORM = 'android';
 
-// Voraussetzungen vor `npm run test:android`: siehe README „ — Android".
+// Voraussetzungen vor `npm run test:android`: siehe README „Android-Tests".
 const apkPath = process.env.ANDROID_APK_PATH
   ? resolve(process.env.ANDROID_APK_PATH)
   : resolve(__dirname, '..', 'apps', 'android', 'element-patched.apk');

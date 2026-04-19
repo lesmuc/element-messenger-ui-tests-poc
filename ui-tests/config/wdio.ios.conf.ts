@@ -4,7 +4,7 @@ import { sharedConfig } from './wdio.shared.conf';
 // Muss vor sharedConfig-Import gesetzt sein (screenshots.ts liest beim Laden).
 process.env.UI_TEST_PLATFORM = 'ios';
 
-// -Platzhalter — Aktivierung siehe README „ — iOS".
+// Platzhalter — Aktivierung siehe README „iOS-Tests".
 export const config: Options.Testrunner = {
   ...sharedConfig,
   specs: ['../test/specs/ios/**/*.spec.ts'],
@@ -26,7 +26,7 @@ export const config: Options.Testrunner = {
 
   onPrepare: (): void => {
     throw new Error(
-      'wdio.ios.conf.ts: -Platzhalter. Zum Aktivieren siehe README.',
+      'wdio.ios.conf.ts: Platzhalter. Zum Aktivieren siehe README.',
     );
   },
 } as Options.Testrunner;
