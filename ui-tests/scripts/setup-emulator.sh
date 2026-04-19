@@ -58,7 +58,13 @@ prep_device() {
   while [ "$(adb -s "$serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
     sleep 2
   done
-  echo "   ✓ $serial boot complete"
+  # boot_completed allein reicht Appium nicht — der PackageManager braucht
+  # nochmal ein paar Sekunden bis er responsive ist. Ohne diesen Check
+  # laufen Appium-Session-Creates in adb-Timeouts.
+  while ! adb -s "$serial" shell pm list packages 2>/dev/null | grep -q '^package:'; do
+    sleep 2
+  done
+  echo "   ✓ $serial ready"
 
   echo "   → Stylus-Handwriting + Animationen auf $serial deaktivieren"
   for kv in \

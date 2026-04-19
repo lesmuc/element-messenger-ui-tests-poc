@@ -18,9 +18,6 @@ function sessionCap(udid: string, systemPort: number) {
     'appium:app': apkPath,
     'appium:autoGrantPermissions': true,
     'appium:newCommandTimeout': 300,
-    // Default 20 s ist direkt nach Emulator-Boot zu knapp — adb-Calls können
-    // noch hängen, bis das Device voll responsive ist.
-    'appium:adbExecTimeout': 60_000,
     // Pro Session eigener systemPort — sonst kollidieren parallele UIAutomator2-Bridges.
     'appium:systemPort': systemPort,
     'appium:skipDeviceInitialization': true,
