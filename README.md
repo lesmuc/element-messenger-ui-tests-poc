@@ -2,10 +2,6 @@
 
 ## Inhalt
 
-- **[`element-test-inventory.md`](./element-test-inventory.md)** — Kurzer Überblick,
-  welche Test-Techniken die drei element-hq-Clients aktuell nutzen und wie hoch
-  die Coverage ist.
-
 - **[`ui-tests/`](./ui-tests/README.md)** — Proof-of-Concept UI-Tests, komplett
   reproduzierbar gegen einen lokalen Synapse + Element-Web via Docker.
   Zwei Plattformen funktionieren grün:
