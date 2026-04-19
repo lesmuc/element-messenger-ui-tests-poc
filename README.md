@@ -1,7 +1,4 @@
-# element-tests-inventory
-
-Bestandsaufnahme der Tests in den offiziellen Element-Clients (Web, iOS, Android)
-und ein Proof-of-Concept für eigene UI-Tests mit **Webdriver.io + Appium**.
+# Proof-of-Concept für plattformübergreifende UI-Tests der Element-Messenger-Clients mit Webdriver.io + Appium
 
 ## Inhalt
 
