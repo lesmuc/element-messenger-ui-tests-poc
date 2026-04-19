@@ -28,9 +28,5 @@
     "typescript": "^5.4.0",
     "undici": "^6.19.0",
     "webdriverio": "^9.0.0"
-  },
-  "comments": {
-    "phase2_android_deps": "@wdio/appium-service, appium — Installation: npm install -D @wdio/appium-service appium; appium driver install uiautomator2",
-    "phase3_ios_deps": "@wdio/appium-service, appium — Installation: npm install -D @wdio/appium-service appium; appium driver install xcuitest"
   }
 }
