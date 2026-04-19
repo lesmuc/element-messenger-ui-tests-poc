@@ -31,6 +31,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Mac-Runner-Environment setzen
+        # Der Runner-Service hat einen minimalen Default-PATH und kein
+        # ANDROID_HOME. Docker Desktop (/usr/local/bin), Homebrew-Tools
+        # wie apktool (/opt/homebrew/bin) und das Android-SDK fehlen
+        # dadurch — hier ergänzen.
+        run: |
+          SDK="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+          echo "$SDK/platform-tools" >> "$GITHUB_PATH"
+          echo "$SDK/emulator" >> "$GITHUB_PATH"
+          echo "$SDK/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+
       - name: npm-Abhängigkeiten installieren
         run: npm ci
 
