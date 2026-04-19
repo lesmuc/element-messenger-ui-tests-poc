@@ -1,8 +1,9 @@
 # macOS
 .DS_Store
 
-# Claude Code — lokale, benutzerspezifische Permissions (settings.json IST team-weit teilbar)
+# Claude Code — lokale Assistant-Settings und projekt-lokale CLAUDE.md
 .claude/settings.local.json
+CLAUDE.md
 
 # Lokale Plan-Dateien
 .claude/plans/

@@ -5,9 +5,9 @@ Webdriver.io + TypeScript UI-Tests gegen Element-Web, aufgebaut als Multi-Platfo
 
 ## Voraussetzungen
 
-- Docker Desktop (oder Colima / OrbStack), läuft
+- Docker Desktop
 - Node.js ≥ 20
-- Google Chrome auf dem Host (wird von wdio 9 über den eingebauten Chromedriver verwendet)
+- Google Chrome
 
 ## Setup
 
