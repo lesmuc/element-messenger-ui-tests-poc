@@ -1,44 +1,40 @@
 import type { Options } from '@wdio/types';
+import { resolve } from 'node:path';
 import { sharedConfig } from './wdio.shared.conf';
 
-/**
- * Phase-1-Platzhalter — wird in Phase 2 aktiviert.
- *
- * Aktivierungs-Schritte (siehe Plan):
- *   1. npm install -D @wdio/appium-service appium
- *   2. npx appium driver install uiautomator2
- *   3. Debug-APK unter apps/android/element-x.apk ablegen
- *   4. Die auskommentierten Capabilities- und Services-Blöcke unten aktivieren
- *   5. Die onPrepare-Exception entfernen
- *   6. Android-Page-Objects unter test/pageobjects/android/ anlegen
- *   7. Specs unter test/specs/android/ anlegen
- */
+// Muss vor sharedConfig-Import gesetzt sein (screenshots.ts liest beim Laden).
+process.env.UI_TEST_PLATFORM = 'android';
+
+// Voraussetzungen vor `npm run test:android`: siehe README „Phase 2 — Android".
+const apkPath = process.env.ANDROID_APK_PATH
+  ? resolve(process.env.ANDROID_APK_PATH)
+  : resolve(__dirname, '..', 'apps', 'android', 'element-patched.apk');
+
+function sessionCap(udid: string, systemPort: number) {
+  return {
+    platformName: 'Android',
+    'appium:automationName': 'UIAutomator2',
+    'appium:udid': udid,
+    'appium:app': apkPath,
+    'appium:autoGrantPermissions': true,
+    'appium:newCommandTimeout': 300,
+    // Pro Session eigener systemPort — sonst kollidieren parallele UIAutomator2-Bridges.
+    'appium:systemPort': systemPort,
+    'appium:skipDeviceInitialization': true,
+    // Gepatchte APK (Debug-Key) vs. evtl. vorher installierte Release (F-Droid-Key):
+    // Signatur-Mismatch erzwingt Uninstall-First.
+    'appium:fullReset': true,
+  };
+}
+
 export const config: Options.Testrunner = {
   ...sharedConfig,
   specs: ['../test/specs/android/**/*.spec.ts'],
-  maxInstances: 1,
 
-  // capabilities: [
-  //   {
-  //     platformName: 'Android',
-  //     'appium:deviceName': 'Pixel_7_API_33',
-  //     'appium:platformVersion': '13.0',
-  //     'appium:automationName': 'UIAutomator2',
-  //     'appium:app': require('path').resolve(__dirname, '../apps/android/element-x.apk'),
-  //     'appium:autoGrantPermissions': true,
-  //     'appium:newCommandTimeout': 240,
-  //   },
-  // ],
-  capabilities: [],
-
-  // services: [['appium', { command: 'appium', args: { relaxedSecurity: true } }]],
-
-  onPrepare: (): void => {
-    throw new Error(
-      'wdio.android.conf.ts: Phase-1-Platzhalter — Appium ist noch nicht eingerichtet.\n' +
-      'Siehe Plan Phase 2: @wdio/appium-service + appium installieren, uiautomator2-Driver\n' +
-      'installieren, APK unter apps/android/ ablegen, Capabilities + Services einkommentieren,\n' +
-      'diese Exception entfernen.',
-    );
+  capabilities: {
+    alice: { capabilities: sessionCap('emulator-5554', 8200) },
+    bob:   { capabilities: sessionCap('emulator-5556', 8201) },
   },
+
+  services: [['appium', { command: 'appium', args: { relaxedSecurity: true } }]],
 } as Options.Testrunner;

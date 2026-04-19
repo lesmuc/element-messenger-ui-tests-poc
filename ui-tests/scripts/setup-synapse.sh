@@ -1,13 +1,6 @@
 #!/usr/bin/env bash
-# Erzeugt und patcht die Synapse-Testkonfiguration, sodass der UI-Test-
-# Homeserver reproduzierbar gestartet werden kann.
-#
-# Idempotent: mehrfacher Aufruf ist sicher — einmal erzeugte Dateien
-# werden nicht überschrieben; Test-Einstellungen werden nur angehängt,
-# wenn sie noch nicht drin sind.
-#
-# Lokal und in CI identisch nutzbar. Aufruf aus ui-tests/:
-#   ./scripts/setup-synapse.sh
+# Erzeugt homeserver.yaml + patcht Test-Einstellungen (registration on,
+# encryption off, hohe Rate-Limits). Idempotent.
 
 set -euo pipefail
 
@@ -21,10 +14,9 @@ mkdir -p "${DATA_DIR}"
 if [ ! -f "${YAML}" ]; then
   echo "→ Erzeuge Synapse-Basiskonfiguration via 'docker compose run generate'..."
   (cd "${HERE}" && docker compose run --rm synapse generate)
-  # Synapse setzt im Container die Ownership von /data auf uid 991 (synapse-User).
-  # Auf Docker Desktop/macOS wird das per UID-Mapping transparent gemacht, auf
-  # nativem Linux-Docker (z.B. GitHub-Runner) nicht — dort gehört die Datei dann
-  # 991:991 und der Host-User kann nichts mehr reinpatchen. Ownership zurückgeben.
+  # Synapse setzt Ownership auf uid 991 (Container-User). Auf Linux-Docker
+  # ohne UID-Mapping (z.B. GitHub-Runner) kann der Host-User dann nichts mehr
+  # an der Datei ändern — zurückchownen.
   docker run --rm -v "${DATA_DIR}:/data" alpine chown -R "$(id -u):$(id -g)" /data
 fi
 
@@ -32,8 +24,6 @@ if grep -qF "${MARKER}" "${YAML}"; then
   echo "→ Test-Einstellungen sind bereits in homeserver.yaml vorhanden, überspringe Patch."
 else
   echo "→ Hänge Test-Einstellungen an homeserver.yaml an..."
-  # Sicherstellen, dass der Host-User schreiben darf (falls generate gerade
-  # durchgelaufen ist und chown oben noch nicht griff, z.B. bei existing-but-patched Config).
   docker run --rm -v "${DATA_DIR}:/data" alpine chown -R "$(id -u):$(id -g)" /data
   cat >> "${YAML}" <<'YAML'
 suppress_key_server_warning: true
@@ -61,9 +51,7 @@ rc_login:
 YAML
 fi
 
-# Ownership für den Synapse-Container (uid 991 intern) wieder herstellen,
-# damit der Homeserver seine eigene Config und den Daten-Ordner lesen und
-# schreiben kann. Idempotent — bei jedem Run ausführen.
+# Ownership zurück auf 991:991, damit der Synapse-Container lesen/schreiben kann.
 docker run --rm -v "${DATA_DIR}:/data" alpine chown -R 991:991 /data
 
 echo "✓ Synapse-Konfiguration bereit."

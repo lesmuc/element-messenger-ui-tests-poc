@@ -1,6 +1,9 @@
 import type { Options } from '@wdio/types';
 import { sharedConfig } from './wdio.shared.conf';
 
+// Muss vor sharedConfig-Import gesetzt sein (screenshots.ts liest beim Laden).
+process.env.UI_TEST_PLATFORM = 'web';
+
 const baseUrl = process.env.ELEMENT_URL ?? 'http://localhost:8080';
 
 export const config: Options.Testrunner = {

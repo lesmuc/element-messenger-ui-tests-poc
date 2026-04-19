@@ -77,16 +77,19 @@ jobs:
       - name: Screenshot-Übersicht in Step-Summary schreiben
         if: always()
         run: |
-          if [ -d screenshots ] && [ "$(ls -A screenshots 2>/dev/null)" ]; then
+          if [ -d screenshots ] && find screenshots -type f -name '*.png' | grep -q .; then
             {
               echo "## 📸 Screenshots"
               echo ""
-              echo "| # | Datei | Größe |"
+              echo "| Plattform | Datei | Größe |"
               echo "| --- | --- | ---: |"
-              for f in $(ls -1 screenshots | sort); do
-                size=$(wc -c < "screenshots/$f" | tr -d ' ')
-                echo "| | \`$f\` | ${size} B |"
-              done
+              while IFS= read -r f; do
+                rel="${f#screenshots/}"
+                platform="${rel%%/*}"
+                name="${rel#*/}"
+                size=$(wc -c < "$f" | tr -d ' ')
+                echo "| \`$platform\` | \`$name\` | ${size} B |"
+              done < <(find screenshots -type f -name '*.png' | sort)
               echo ""
               echo "→ Download über das Artifact **screenshots** auf dieser Run-Seite."
             } >> "$GITHUB_STEP_SUMMARY"

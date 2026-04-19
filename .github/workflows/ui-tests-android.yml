@@ -1,0 +1,112 @@
+name: UI-Tests (Android)
+
+# Läuft auf Self-hosted M1-Runner — alles, was für die Tests nötig ist
+# (Android SDK, apktool, Java, AVDs, Docker Desktop, Node), ist lokal
+# installiert und vorbereitet. Der Runner muss bereit und Docker Desktop
+# gestartet sein.
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'ui-tests/**'
+      - '.github/workflows/ui-tests-android.yml'
+  pull_request:
+    paths:
+      - 'ui-tests/**'
+      - '.github/workflows/ui-tests-android.yml'
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ui-tests
+
+jobs:
+  android:
+    name: Android (two emulators, Appium, M1)
+    runs-on: [self-hosted, macOS, ARM64]
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: npm-Abhängigkeiten installieren
+        run: npm ci
+
+      - name: Synapse-Stack sicherstellen (idempotent)
+        run: |
+          npm run synapse:setup
+          docker compose up -d
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8008/_matrix/client/versions > /dev/null; then
+              echo "✓ Synapse ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "Synapse startete nicht"; docker compose logs --tail=80; exit 1
+
+      - name: Universal-APK herunterladen (falls nicht vorhanden)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f apps/android/202604020.apk ]; then
+            mkdir -p apps/android
+            gh release download v26.04.2 --repo element-hq/element-x-android \
+              --pattern '202604020.apk' --dir apps/android
+          fi
+
+      - name: APK patchen
+        run: bash scripts/patch-apk.sh
+
+      - name: Emulatoren starten (falls nicht bereits laufend)
+        run: bash scripts/setup-emulator.sh
+
+      - name: wdio-Tests ausführen
+        run: npm run test:android
+
+      - name: Screenshots hochladen
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-android
+          path: ui-tests/screenshots/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Screenshot-Übersicht in Step-Summary
+        if: always()
+        run: |
+          if [ -d screenshots ] && find screenshots -type f -name '*.png' | grep -q .; then
+            {
+              echo "## 📸 Screenshots"
+              echo ""
+              echo "| Plattform | Datei | Größe |"
+              echo "| --- | --- | ---: |"
+              while IFS= read -r f; do
+                rel="${f#screenshots/}"
+                platform="${rel%%/*}"
+                name="${rel#*/}"
+                size=$(wc -c < "$f" | tr -d ' ')
+                echo "| \`$platform\` | \`$name\` | ${size} B |"
+              done < <(find screenshots -type f -name '*.png' | sort)
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Logs bei Fehlschlag hochladen
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-ci-logs
+          path: |
+            ui-tests/logs/
+            ui-tests/.wdio-logs/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Docker- und Emulator-Logs bei Fehlschlag dumpen
+        if: failure()
+        run: |
+          docker compose logs --tail=200 || true
+          tail -80 logs/emulator-5554.log 2>/dev/null || true
+          tail -80 logs/emulator-5556.log 2>/dev/null || true

@@ -1,28 +1,16 @@
 import type { ChainablePromiseElement } from 'webdriverio';
 
-/**
- * Page-Object für den Element-Web-Login.
- *
- * Element-Web startet — abhängig vom Onboarding-Zustand des Profils —
- * entweder direkt auf `/#/login` oder zuerst auf `/#/welcome`. `open()`
- * kommt mit beiden Fällen zurecht: auf Welcome wird der „Sign in"-
- * Button geklickt; ist er nicht da, sind wir bereits auf dem Login-
- * Formular.
- *
- * Hinweis zum Locale: Chrome wird in wdio.web.conf.ts explizit auf
- * en-US gestellt, damit die Button-/Label-Texte hier stabil auf
- * Englisch sind und die Selectors nicht mehrsprachig sein müssen.
- */
+// Chrome wird in wdio.web.conf.ts auf en-US gezwungen, damit die Text-Selectors
+// hier nicht mehrsprachig sein müssen.
 export class LoginPage {
   constructor(private readonly browser: WebdriverIO.Browser) {}
 
   async open(): Promise<void> {
     await this.browser.url('/');
 
-    // Element-Web startet entweder auf /#/welcome (mit "Sign in"-Button) oder
-    // direkt auf /#/login. Wir warten aktiv auf eines der beiden — das ist
-    // robuster gegen Service-Worker-/Asset-Loading-Delays als ein fester Sleep
-    // oder ein optionaler Klick ohne Wait.
+    // Element-Web startet je nach Profil-Zustand auf /#/welcome oder /#/login
+    // — aktiv auf einen der beiden Anker warten ist robuster gegen
+    // Service-Worker-/Asset-Delays als ein fester Sleep.
     const welcomeSignInXPath =
       '//*[@role="button" or self::a or self::button][normalize-space()="Sign in"]';
     await this.browser.waitUntil(
