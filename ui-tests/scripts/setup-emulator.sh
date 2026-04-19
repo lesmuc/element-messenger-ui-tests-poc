@@ -53,26 +53,12 @@ start_emulator() {
 prep_device() {
   local port="$1"
   local serial="emulator-${port}"
-  echo "→ Warte auf $serial (max 3 min) …"
-  if ! timeout 180 adb -s "$serial" wait-for-device; then
-    echo "✗ $serial ist nicht online geworden. Emulator-Log:"
-    tail -100 "${HERE}/logs/emulator-${port}.log" || true
-    exit 1
-  fi
-  local booted=0
-  for i in $(seq 1 120); do
-    if [ "$(adb -s "$serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; then
-      echo "   ✓ $serial boot complete nach ${i}×2s"
-      booted=1
-      break
-    fi
+  echo "→ Warte auf $serial …"
+  adb -s "$serial" wait-for-device
+  while [ "$(adb -s "$serial" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" != "1" ]; do
     sleep 2
   done
-  if [ "$booted" != 1 ]; then
-    echo "✗ $serial hat sys.boot_completed nicht gesetzt. Emulator-Log:"
-    tail -100 "${HERE}/logs/emulator-${port}.log" || true
-    exit 1
-  fi
+  echo "   ✓ $serial boot complete"
 
   echo "   → Stylus-Handwriting + Animationen auf $serial deaktivieren"
   for kv in \
