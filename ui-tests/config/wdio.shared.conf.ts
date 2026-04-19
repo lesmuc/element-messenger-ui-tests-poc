@@ -6,7 +6,9 @@ export const sharedConfig: Partial<Options.Testrunner> = {
   framework: 'mocha',
   mochaOpts: {
     ui: 'bdd',
-    timeout: 120_000,
+    // Großzügig, damit Two-Emulator-Android-Runs auf schwächerer Runner-Hardware
+    // nicht am Mocha-Hard-Timeout zerschlagen (lokal: ~30 s, Runner-Mac bis ~4 min).
+    timeout: 300_000,
   },
   reporters: ['spec'],
   logLevel: 'warn',
@@ -15,13 +17,7 @@ export const sharedConfig: Partial<Options.Testrunner> = {
   connectionRetryTimeout: 120_000,
   connectionRetryCount: 3,
 
-  /**
-   * Failure-Screenshot-Hook: wenn ein Test failt, wird automatisch ein
-   * Screenshot aller aktiven Sessions gespeichert. Der Titel des Tests
-   * landet im Dateinamen — erleichtert das Debuggen in der CI-Artifact-
-   * Galerie. Key-Step-Screenshots im Spec-Code selbst bleiben davon
-   * unberührt.
-   */
+  // Bei Fehlschlag Screenshots aller aktiven Sessions — Test-Titel im Dateinamen.
   afterTest: async function (
     test: Frameworks.Test,
     _context: unknown,

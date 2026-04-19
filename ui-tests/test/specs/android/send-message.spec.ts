@@ -3,59 +3,57 @@ import {
   registerUser,
   userIdFor,
   createRoom,
-  joinRoom,
   type UserCreds,
 } from '../../helpers/synapse-admin';
-import { LoginPage } from '../../pageobjects/web/login.page';
-import { RoomPage } from '../../pageobjects/web/room.page';
+import { AndroidLoginPage } from '../../pageobjects/android/login.page';
+import { AndroidRoomPage } from '../../pageobjects/android/room.page';
 import { snap, resetSnapCounter } from '../../helpers/screenshots';
 
-describe('Send message end-to-end (two users, unencrypted)', () => {
+describe('Element X Android — Send-Message (Two-Device)', () => {
   const uniq = Date.now();
   const aliceName = `alice_${uniq}`;
   const bobName = `bob_${uniq}`;
   const password = 'TestP@ssw0rd!';
   const roomName = `Test Room ${uniq}`;
-  const message = `Hello Bob — ${uniq}`;
+  const message = `Hallo Bob aus Android ${uniq}`;
+  const serverUrl = 'http://10.0.2.2:8008';
 
   let aliceCreds: UserCreds;
   let bobCreds: UserCreds;
-  let roomId: string;
 
   before(async () => {
     aliceCreds = await registerUser(aliceName, password);
     bobCreds = await registerUser(bobName, password);
-    roomId = await createRoom(aliceCreds, {
+    await createRoom(aliceCreds, {
       name: roomName,
       invite: [userIdFor(bobName)],
     });
-    await joinRoom(bobCreds, roomId);
-    console.log(`Setup complete: room ${roomId}, alice=${aliceCreds.user_id}, bob=${bobCreds.user_id}`);
+    console.log(`Setup: ${aliceCreds.user_id} lädt ${bobCreds.user_id} ein in "${roomName}"`);
   });
 
-  it('alice sends a message, bob receives it via UI', async () => {
+  it('alice sendet per App, bob empfängt per App', async () => {
     resetSnapCounter();
 
     const alice = multiremotebrowser.getInstance('alice') as WebdriverIO.Browser;
     const bob = multiremotebrowser.getInstance('bob') as WebdriverIO.Browser;
 
-    const aliceLogin = new LoginPage(alice);
-    const bobLogin = new LoginPage(bob);
-    const aliceRoom = new RoomPage(alice);
-    const bobRoom = new RoomPage(bob);
+    const aliceLogin = new AndroidLoginPage(alice);
+    const bobLogin = new AndroidLoginPage(bob);
+    const aliceRoom = new AndroidRoomPage(alice);
+    const bobRoom = new AndroidRoomPage(bob);
 
-    await aliceLogin.open();
-    await aliceLogin.signIn(aliceName, password);
+    await aliceLogin.openCustomServer(serverUrl);
+    await aliceLogin.enterCredentials(aliceName, password);
     await aliceLogin.waitLoggedIn();
 
-    await bobLogin.open();
-    await bobLogin.signIn(bobName, password);
+    await bobLogin.openCustomServer(serverUrl);
+    await bobLogin.enterCredentials(bobName, password);
     await bobLogin.waitLoggedIn();
     await snap('after-login');
 
-    await aliceRoom.openRoomById(roomId);
-    await bobRoom.openRoomById(roomId);
-    await snap('room-open');
+    await aliceRoom.openByName(roomName);
+    await bobRoom.acceptInvite(roomName);
+    await snap('rooms-open');
 
     await aliceRoom.sendMessage(message);
     await snap('message-sent');
@@ -64,7 +62,7 @@ describe('Send message end-to-end (two users, unencrypted)', () => {
     await snap('message-received');
 
     const tile = await bob.$(
-      `//*[contains(@class, "mx_EventTile")]//*[normalize-space()="${message}"]`,
+      `android=new UiSelector().textContains("${message}")`,
     );
     await expect(tile).toBeDisplayed();
   });

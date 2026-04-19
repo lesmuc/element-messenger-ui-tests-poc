@@ -31,9 +31,23 @@ npm run synapse:down    # aufräumen
 
 ## CI
 
-Der Workflow `.github/workflows/ui-tests-web.yml` führt dieselbe Kette auf
-jedem PR und Push auf `master`/`main` aus (Ubuntu-Runner). Änderungen
-außerhalb von `ui-tests/` triggern ihn nicht.
+Zwei parallele Workflows auf Ubuntu-Runnern, beide triggern auf jedem
+PR und Push auf `master`/`main`, sofern `ui-tests/**` geändert wurde:
+
+- `.github/workflows/ui-tests-web.yml` — **Ubuntu-Runner (GHA)**, Chrome-multiremote
+  (Alice + Bob). Dauer ~1–2 min.
+- `.github/workflows/ui-tests-android.yml` — **Self-hosted M1-Runner**, zwei
+  arm64-Emulatoren, APK wird lokal gepatcht. Dauer ~3–5 min. Android-SDK,
+  apktool, Java, AVDs und Docker Desktop müssen auf dem Mac installiert und
+  lauffähig sein; der Runner muss registriert und als Service aktiv sein.
+
+### Self-hosted Runner auf dem M1 einrichten
+
+In GitHub → Settings → Actions → Runners → **New self-hosted runner**:
+Labels **`self-hosted`, `macOS`, `ARM64`** auswählen, die drei Terminal-
+Kommandos ausführen (`./config.sh …` + `./run.sh` oder `./svc.sh install`
+für Service-Mode). Docker Desktop beim Mac-Login automatisch starten lassen,
+damit der Runner ohne manuelles Eingreifen Tests durchführen kann.
 
 Mit sichtbarem Browser:
 
@@ -86,32 +100,59 @@ ui-tests/
 
 Warum API-Setup statt UI-Klicks: Element-Webs Create-Room-Dialog ist komplex (Encryption-Toggle, Visibility-Presets, Invite-Suche) und ändert sich zwischen Versionen. Die API ist stabil. Wir testen damit *gezielt* den Send-/Receive-Pfad statt zufällig auch noch Raum-Erstellungs-UX.
 
-## Mobile-Ausblick
+##  — Android (implementiert)
 
-###  — Android
+Android-Tests laufen per Appium + UIAutomator2 auf **zwei parallelen
+Emulatoren** (Alice auf Port 5554, Bob auf Port 5556), analog zum
+multiremote-Pattern des Web-Tests:
+
+- `test/specs/android/send-message.spec.ts` — End-to-End Two-Device:
+  Alice + Bob loggen sich beide per App ein, Bob nimmt den Invite per
+  UI an, Alice sendet, Bob sieht die Nachricht in seiner Timeline.
+
+### Voraussetzungen für 
+
+- Android SDK (ANDROID_HOME gesetzt), AVD `Pixel_6a` (Default, via `AVD_NAME_ALICE` überschreibbar). Das Bob-AVD (`Pixel_6a_bob`, via `AVD_NAME_BOB` überschreibbar) legt `setup-emulator.sh` bei Bedarf selbst an.
+- Java 17+
+- `apktool` (via `brew install apktool`)
+- `~/.android/debug.keystore` (kommt mit Android Studio / Gradle; sonst erzeugt das Patch-Script einen)
+
+### Einmaliger Setup
 
 ```bash
-npm install -D @wdio/appium-service appium
-npx appium driver install uiautomator2
-# Debug-APK von element-x-android nach apps/android/element-x.apk legen
+# Universal-APK herunterladen (aus Element-X-Android Release)
+gh release download v26.04.2 --repo element-hq/element-x-android \
+  --pattern '202604020.apk' --dir apps/android
+
+# APK patchen: network_security_config auf cleartextTrafficPermitted=true
+# setzen, mit Debug-Keystore re-signen → apps/android/element-patched.apk
+bash scripts/patch-apk.sh
 ```
 
-Dann in `config/wdio.android.conf.ts`:
-- Die kommentierten Capabilities + `services`-Blöcke aktivieren
-- Die `onPrepare`-Exception entfernen
-
-Page-Objects unter `test/pageobjects/android/` mit gleichen Methodensignaturen wie Web,
-Selectors per UIAutomator (`android=new UiSelector()...`).
-Specs unter `test/specs/android/`.
-
-Android-Emulator erreicht den Host-Synapse unter `http://10.0.2.2:8008` (nicht `localhost`).
-Die Debug-APK muss Cleartext-HTTP auf `10.0.2.2` erlauben (per `network_security_config.xml`
-oder `usesCleartextTraffic="true"`).
-
-###  — iOS
+### Android-Tests ausführen
 
 ```bash
-npm install -D @wdio/appium-service appium
+npm run synapse:up                 # Synapse + Element-Web starten
+bash scripts/setup-emulator.sh     # Beide Emulatoren starten + tweaken
+npm run test:android               # Two-Device Send-Message-Test
+```
+
+### Warum APK-Patch?
+
+Element X hat `networkSecurityConfig` → Cleartext-HTTP zu `10.0.2.2:8008`
+wird per Default verboten. Alternativen (TLS-Sidecar mit System-CA-Install,
+Source-Build aus element-x-android) sind entweder auf aktuellen Android-
+Versionen fragile (apex-Mount-Tricks greifen nicht für alle Zygote-Kinder)
+oder deutlich aufwändiger (Rust-SDK-Build + Gradle-Pipeline).
+
+Das Patchen ist reproduzierbar, CI-freundlich, und berührt nur eine
+XML-Datei in der APK — die getestete App bleibt ansonsten bit-gleich
+mit dem Release-Binary.
+
+##  — iOS (noch offen)
+
+```bash
+npm install -D @wdio/appium-service appium   # falls noch nicht aus 
 npx appium driver install xcuitest
 # Debug-.app von element-x-ios nach apps/ios/element-x.app legen
 ```
@@ -119,7 +160,8 @@ npx appium driver install xcuitest
 Dann in `config/wdio.ios.conf.ts`: Capabilities + Services aktivieren, Exception entfernen.
 
 iOS-Simulator erreicht den Host-Synapse direkt unter `http://localhost:8008`.
-Die Debug-Build braucht `NSAppTransportSecurity` mit Exception für `localhost`.
+Die Debug-Build braucht `NSAppTransportSecurity` mit Exception für `localhost` —
+oder analog zu Android eine patch-`.app`-Pipeline.
 
 ## Troubleshooting
 
