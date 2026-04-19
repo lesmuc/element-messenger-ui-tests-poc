@@ -43,9 +43,13 @@ ensure_avd "$AVD_BOB"
 
 start_emulator() {
   local avd="$1" port="$2"
-  if adb devices | grep -qE "^emulator-${port}[[:space:]]+device"; then
-    echo "→ Emulator $avd läuft bereits auf Port $port"
-    return
+  # Jeden Run frisch: läuft bereits einer → killen. Zwischen Runs akkumuliert
+  # sich State im System-Server (teils korrupt), was spätere adb-Calls hängen
+  # lässt bzw. `cmd: Can't find service: settings` produziert.
+  if adb devices | grep -qE "^emulator-${port}"; then
+    echo "→ Bestehenden Emulator auf Port $port stoppen"
+    adb -s "emulator-${port}" emu kill 2>/dev/null || true
+    sleep 2
   fi
   echo "→ Starte Emulator $avd auf Port $port"
   nohup "${ANDROID_HOME}/emulator/emulator" -avd "$avd" -port "$port" \
