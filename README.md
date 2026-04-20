@@ -1,5 +1,21 @@
 # Proof-of-Concept für plattformübergreifende UI-Tests der Element-Messenger-Clients mit Webdriver.io + Appium
 
+## Screenshots aus den Test-Läufen
+
+### Web — Chrome multiremote (Alice + Bob parallel)
+
+|       | 1. Login | 2. Raum offen | 3. Nachricht gesendet | 4. Nachricht empfangen |
+|-------|----------|---------------|-----------------------|------------------------|
+| Alice | <img src="docs/screenshots/web-1-login-alice.png" width="220"/> | <img src="docs/screenshots/web-2-room-alice.png" width="220"/> | <img src="docs/screenshots/web-3-sent-alice.png" width="220"/> | <img src="docs/screenshots/web-4-received-alice.png" width="220"/> |
+| Bob   | <img src="docs/screenshots/web-1-login-bob.png" width="220"/>   | <img src="docs/screenshots/web-2-room-bob.png" width="220"/>   | <img src="docs/screenshots/web-3-sent-bob.png" width="220"/>   | <img src="docs/screenshots/web-4-received-bob.png" width="220"/>   |
+
+### Android — Element X, zwei Emulatoren parallel
+
+|       | 1. Login | 2. Raum offen | 3. Nachricht gesendet | 4. Nachricht empfangen |
+|-------|----------|---------------|-----------------------|------------------------|
+| Alice | <img src="docs/screenshots/android-1-login-alice.png" width="110"/> | <img src="docs/screenshots/android-2-room-alice.png" width="110"/> | <img src="docs/screenshots/android-3-sent-alice.png" width="110"/> | <img src="docs/screenshots/android-4-received-alice.png" width="110"/> |
+| Bob   | <img src="docs/screenshots/android-1-login-bob.png" width="110"/>   | <img src="docs/screenshots/android-2-room-bob.png" width="110"/>   | <img src="docs/screenshots/android-3-sent-bob.png" width="110"/>   | <img src="docs/screenshots/android-4-received-bob.png" width="110"/>   |
+
 ## Hintergrund
 
 Dieser POC ist über ein Wochenende im Rahmen meiner Bewerbung als Senior
