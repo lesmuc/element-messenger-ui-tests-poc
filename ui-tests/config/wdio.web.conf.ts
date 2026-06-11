@@ -17,7 +17,7 @@ export const config: Options.Testrunner = {
         'goog:chromeOptions': {
           args: [
             '--lang=en-US',
-            ...(process.env.HEADED ? [] : ['--headless=new', '--disable-gpu', '--window-size=1280,900']),
+            ...(process.env.HEADED ? [] : ['--headless', '--disable-gpu', '--window-size=1280,900']),
           ],
           prefs: { 'intl.accept_languages': 'en-US,en' },
         },
@@ -29,7 +29,7 @@ export const config: Options.Testrunner = {
         'goog:chromeOptions': {
           args: [
             '--lang=en-US',
-            ...(process.env.HEADED ? [] : ['--headless=new', '--disable-gpu', '--window-size=1280,900']),
+            ...(process.env.HEADED ? [] : ['--headless', '--disable-gpu', '--window-size=1280,900']),
           ],
           prefs: { 'intl.accept_languages': 'en-US,en' },
         },
