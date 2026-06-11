@@ -18,7 +18,7 @@ npm install
 npm run synapse:setup   # erzeugt + patcht synapse/data/homeserver.yaml (idempotent)
 ```
 
-`synapse:setup` ruft intern `docker compose run --rm synapse generate` auf und
+`synapse:setup` ruft intern `docker run --rm matrixdotorg/synapse generate` auf und
 hängt die Test-Einstellungen (registration on, encryption off, hohe Rate-Limits)
 an. Mehrfach aufrufbar, bestehende Konfig wird nicht zerstört.
 
