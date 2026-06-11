@@ -174,10 +174,8 @@ damit der Runner ohne manuelles Eingreifen Tests durchführen kann.
 - **WebDriverError bei `test:android`: Device nicht gefunden**: Die Android-Tests
   erwarten `emulator-5554` (Alice) und `emulator-5556` (Bob) bereits laufend —
   Appium startet keine Emulatoren. Vorher `bash scripts/setup-emulator.sh`
-  ausführen (bootet beide, legt fehlende AVDs an) und mit `adb devices` prüfen,
-  dass beide als `device` (nicht `offline`) gelistet sind. Falls das AVD-Anlegen
-  scheitert, fehlt meist das System-Image:
-  `sdkmanager "system-images;android-36;google_apis;arm64-v8a"`.
+  ausführen (bootet beide, legt fehlende AVDs samt System-Image an) und mit
+  `adb devices` prüfen, dass beide als `device` (nicht `offline`) gelistet sind.
   Außerdem müssen Synapse laufen (`npm run synapse:up`) und die gepatchte APK
   existieren (`bash scripts/patch-apk.sh`, einmalig) — siehe „Android-Tests".
 - **`ANDROID_HOME` nicht gesetzt** (braucht `setup-emulator.sh` und `patch-apk.sh`):

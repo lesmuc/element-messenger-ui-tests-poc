@@ -29,11 +29,24 @@ mkdir -p "${HERE}/logs"
 adb kill-server > /dev/null 2>&1 || true
 adb start-server > /dev/null 2>&1
 
+ensure_system_image() {
+  # "system-images;android-36;google_apis;arm64-v8a" → Verzeichnis unter $ANDROID_HOME
+  local image_dir="${ANDROID_HOME}/$(echo "$SYSTEM_IMAGE" | tr ';' '/')"
+  if [ -d "$image_dir" ]; then
+    return
+  fi
+  echo "→ System-Image $SYSTEM_IMAGE installieren (Download, kann einige Minuten dauern)"
+  # (yes || true): yes stirbt per SIGPIPE, sobald sdkmanager fertig ist —
+  # ohne || true würde set -o pipefail das als Fehler werten.
+  (yes || true) | sdkmanager "$SYSTEM_IMAGE" > /dev/null
+}
+
 ensure_avd() {
   local name="$1"
   if emulator -list-avds | grep -qx "$name"; then
     return
   fi
+  ensure_system_image
   echo "→ AVD $name anlegen aus $SYSTEM_IMAGE"
   echo 'no' | avdmanager create avd -n "$name" -k "$SYSTEM_IMAGE" -d pixel_6a > /dev/null
 }
