@@ -171,3 +171,17 @@ damit der Runner ohne manuelles Eingreifen Tests durchführen kann.
 - **Synapse-Admin-Helper: „Could not find registration_shared_secret"**: `synapse/data/homeserver.yaml` fehlt oder wurde noch nicht generiert — siehe Setup.
 - **Login schlägt fehl mit „Invalid homeserver"**: Prüfe `element-web/config.json` — `base_url` muss auf `http://localhost:8008` zeigen.
 - **Tests laufen, aber Selectors finden nichts**: Element-Web-Version aktualisiert, Selectors können sich geändert haben. Mit `HEADED=1 npm run test:web` manuell beobachten, Selectors in `test/pageobjects/web/` anpassen.
+- **`ANDROID_HOME` nicht gesetzt** (braucht `setup-emulator.sh` und `patch-apk.sh`):
+  In die `~/.zshrc` eintragen, danach neues Terminal öffnen:
+
+  ```bash
+  export ANDROID_HOME="$HOME/Library/Android/sdk"
+  export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+  ```
+
+  `~/Library/Android/sdk` ist der Standardpfad bei Installation via Android
+  Studio (bei Homebrew-Installation stattdessen
+  `/opt/homebrew/share/android-commandlinetools`). Verifizieren mit
+  `adb --version` und `emulator -list-avds`. `ANDROID_SDK_ROOT` ist
+  deprecated und sollte nicht gesetzt sein — falls doch, muss es auf
+  denselben Pfad zeigen wie `ANDROID_HOME`.
