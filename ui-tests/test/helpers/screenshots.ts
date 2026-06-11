@@ -1,4 +1,4 @@
-import { browser, multiremotebrowser } from '@wdio/globals';
+import { browser, multiRemoteBrowser } from '@wdio/globals';
 import { mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -24,9 +24,9 @@ export async function snap(stepName: string): Promise<void> {
   const idx = String(++counter).padStart(2, '0');
 
   if (browser.isMultiremote) {
-    for (const instanceName of multiremotebrowser.instances) {
+    for (const instanceName of multiRemoteBrowser.instances) {
       try {
-        const instance = multiremotebrowser.getInstance(instanceName) as WebdriverIO.Browser;
+        const instance = multiRemoteBrowser.getInstance(instanceName) as WebdriverIO.Browser;
         const path = join(SCREENSHOTS_DIR, `${idx}_${safeName}_${instanceName}.png`);
         await instance.saveScreenshot(path);
         console.log(`  📸 ${path}`);
