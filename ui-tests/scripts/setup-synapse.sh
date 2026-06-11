@@ -12,8 +12,13 @@ MARKER="# --- Test-spezifische Einstellungen (durch ui-tests-Setup ergänzt) ---
 mkdir -p "${DATA_DIR}"
 
 if [ ! -f "${YAML}" ]; then
-  echo "→ Erzeuge Synapse-Basiskonfiguration via 'docker compose run generate'..."
-  (cd "${HERE}" && docker compose run --rm synapse generate)
+  echo "→ Erzeuge Synapse-Basiskonfiguration via 'docker run generate'..."
+  # Plain 'docker run' statt 'docker compose run', damit das Setup nicht von
+  # der installierten Compose-Variante abhängt. Image + Env wie in
+  # docker-compose.yml.
+  docker run --rm -v "${DATA_DIR}:/data" \
+    -e SYNAPSE_SERVER_NAME=localhost -e SYNAPSE_REPORT_STATS=no \
+    matrixdotorg/synapse:latest generate
   # Synapse setzt Ownership auf uid 991 (Container-User). Auf Linux-Docker
   # ohne UID-Mapping (z.B. GitHub-Runner) kann der Host-User dann nichts mehr
   # an der Datei ändern — zurückchownen.
