@@ -130,6 +130,37 @@ Das Patchen ist reproduzierbar, CI-freundlich, und berührt nur eine
 XML-Datei in der APK — die getestete App bleibt ansonsten bit-gleich
 mit dem Release-Binary.
 
+### Appium Inspector (Selectors erkunden)
+
+GUI zum Inspizieren der App-UI — zeigt Live-Screenshot + UI-Baum, um
+Selectors für `test/pageobjects/android/` zu finden (`brew install --cask
+appium-inspector`).
+
+```bash
+bash scripts/setup-emulator.sh   # oder nur einen: emulator -avd Pixel_6a
+npx appium                       # Server manuell starten, Port 4723
+```
+
+Im Inspector: Remote Host `127.0.0.1`, Port `4723`, Remote Path `/`,
+dann als Capability-JSON (App vorher einmal via Testlauf installiert):
+
+```json
+{
+  "platformName": "Android",
+  "appium:automationName": "UIAutomator2",
+  "appium:udid": "emulator-5554",
+  "appium:appPackage": "io.element.android.x",
+  "appium:noReset": true,
+  "appium:newCommandTimeout": 600
+}
+```
+
+Alternativ `"appium:app": "<pfad>/apps/android/element-patched.apk"` statt
+`appPackage`/`noReset`, dann installiert Appium die APK selbst. Nach
+**Start Session**: Element anklicken → `resource-id`/`content-desc` sind
+die stabilen Selektoren. UIAutomator2 erlaubt nur eine Session pro Device —
+nicht parallel zu `npm run test:android` inspizieren.
+
 ## iOS-Tests (vorbereitet, noch nicht aktiviert)
 
 ```bash
