@@ -46,9 +46,7 @@ export class AndroidRoomPage {
 
     // `adb shell input` erwartet Leerzeichen als `%s`.
     const escaped = text.replace(/ /g, '%s');
-    await b.executeScript('mobile: shell', [
-      { command: 'input', args: ['text', escaped] },
-    ]);
+    await b.executeScript('mobile: type', [{ text: escaped }]);
     await b.pause(400);
 
     const sendBtn = await b.$(
