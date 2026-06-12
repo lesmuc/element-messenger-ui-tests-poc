@@ -23,7 +23,6 @@ function sessionCap(udid: string, systemPort: number) {
     'appium:adbExecTimeout': 60_000,
     // Pro Session eigener systemPort — sonst kollidieren parallele UIAutomator2-Bridges.
     'appium:systemPort': systemPort,
-    'appium:skipDeviceInitialization': true,
     // Gepatchte APK (Debug-Key) vs. evtl. vorher installierte Release (F-Droid-Key):
     // Signatur-Mismatch erzwingt Uninstall-First.
     'appium:fullReset': true,

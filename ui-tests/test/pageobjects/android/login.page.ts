@@ -34,14 +34,10 @@ export class AndroidLoginPage {
     const serverSelector = 'android=new UiSelector().resourceId("change_server-server")';
     await b.$(serverSelector).waitForDisplayed({ timeout: 15_000 });
     await b.$(serverSelector).click();
-    // Nach dem Click re-mountet Compose das EditText; setValue scheitert.
-    // `adb shell input text` geht über das System-IME und bleibt stabil.
-    // Escapes: Leerzeichen → %s, : → \:
-    await b.pause(500);
-    const escaped = serverUrl.replace(/ /g, '%s').replace(/:/g, '\\:');
-    await b.executeScript('mobile: shell', [
-      { command: 'input', args: ['text', escaped] },
-    ]);
+    // Nach dem Click re-mountet Compose das EditText; setValue auf der alten
+    // Element-Referenz scheitert. `mobile: type` tippt per IME in das
+    // fokussierte Feld — unabhängig von der Element-Instanz.
+    await b.executeScript('mobile: type', [{ text: serverUrl }]);
 
     // Listen-Eintrag zeigt die URL ohne Schema (z.B. "10.0.2.2:8008").
     const hostPortion = serverUrl.replace(/^https?:\/\//, '');
@@ -64,18 +60,12 @@ export class AndroidLoginPage {
     const userSelector = 'android=new UiSelector().resourceId("login-email_username")';
     await b.$(userSelector).waitForDisplayed({ timeout: 30_000 });
     await b.$(userSelector).click();
-    await b.pause(400);
-    await b.executeScript('mobile: shell', [
-      { command: 'input', args: ['text', username] },
-    ]);
+    await b.executeScript('mobile: type', [{ text: username }]);
 
     const passSelector = 'android=new UiSelector().resourceId("login-password")';
     await b.$(passSelector).waitForDisplayed({ timeout: 10_000 });
     await b.$(passSelector).click();
-    await b.pause(400);
-    await b.executeScript('mobile: shell', [
-      { command: 'input', args: ['text', password] },
-    ]);
+    await b.executeScript('mobile: type', [{ text: password }]);
 
     const submit = await b.$(
       'android=new UiSelector().resourceId("login-continue")',
