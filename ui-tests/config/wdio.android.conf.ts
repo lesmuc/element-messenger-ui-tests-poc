@@ -31,7 +31,7 @@ function sessionCap(udid: string, systemPort: number) {
 
 export const config: Options.Testrunner = {
   ...sharedConfig,
-  specs: ['../test/specs/android/**/*.spec.ts'],
+  specs: ['../test/specs/*.spec.ts'],
 
   capabilities: {
     alice: { capabilities: sessionCap('emulator-5554', 8200) },

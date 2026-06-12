@@ -8,7 +8,7 @@ const baseUrl = process.env.ELEMENT_URL ?? 'http://localhost:8080';
 
 export const config: Options.Testrunner = {
   ...sharedConfig,
-  specs: ['../test/specs/web/**/*.spec.ts'],
+  specs: ['../test/specs/*.spec.ts'],
   maxInstances: 1,
   capabilities: {
     alice: {

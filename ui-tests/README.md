@@ -50,22 +50,23 @@ ui-tests/
 │   └── wdio.ios.conf.ts         # Platzhalter, noch nicht aktiviert
 ├── test/
 │   ├── helpers/synapse-admin.ts # Account-Registrierung via Admin-API
+│   ├── clients/                 # MessengerClient: Interface + Web/Android-Impl.
 │   ├── pageobjects/
 │   │   ├── web/
 │   │   ├── android/
 │   │   └── ios/                 # leer
-│   └── specs/
-│       ├── web/send-message.spec.ts
-│       ├── android/send-message.spec.ts
-│       └── ios/                 # leer
+│   └── specs/send-message.spec.ts  # ein Spec, läuft auf allen Plattformen
 └── apps/
     ├── android/                 # Debug-APK ablegen
     └── ios/                     # Debug-.app ablegen
 ```
 
-## Web-Test-Flow
+## Test-Flow
 
-`test/specs/web/send-message.spec.ts`:
+`test/specs/send-message.spec.ts` — ein gemeinsamer Spec für alle Plattformen.
+Er programmiert gegen das `MessengerClient`-Interface (`test/clients/`); die
+Factory wählt anhand von `UI_TEST_PLATFORM` die Web- bzw. Android-Implementierung,
+die ihrerseits die Page Objects der Plattform komponiert. Ablauf (Web):
 
 **Setup (via Matrix Client-Server API — folgt Element-Webs eigener Best-Practice „minimize UI driving for setup"):**
 1. Admin-Helper registriert `alice_<ts>` und `bob_<ts>` via Synapse-Admin-API.
@@ -87,9 +88,10 @@ Android-Tests laufen per Appium + UIAutomator2 auf **zwei parallelen
 Emulatoren** (Alice auf Port 5554, Bob auf Port 5556), analog zum
 multiremote-Pattern des Web-Tests:
 
-- `test/specs/android/send-message.spec.ts` — End-to-End Two-Device:
-  Alice + Bob loggen sich beide per App ein, Bob nimmt den Invite per
-  UI an, Alice sendet, Bob sieht die Nachricht in seiner Timeline.
+- Es läuft derselbe `test/specs/send-message.spec.ts` wie für Web — mit der
+  Android-Implementierung des `MessengerClient`: Alice + Bob loggen sich beide
+  per App ein, Bob nimmt den Invite per UI an (statt API-Join wie bei Web),
+  Alice sendet, Bob sieht die Nachricht in seiner Timeline.
 
 ### Voraussetzungen
 
@@ -169,7 +171,9 @@ npx appium driver install xcuitest
 # Debug-.app von element-x-ios nach apps/ios/element-x.app legen
 ```
 
-Dann in `config/wdio.ios.conf.ts`: Capabilities + Services aktivieren, Exception entfernen.
+Dann in `config/wdio.ios.conf.ts`: Capabilities + Services aktivieren, Exception
+entfernen — und in `test/clients/` einen iOS-`MessengerClient` implementieren
+(Interface siehe `messenger-client.ts`); der gemeinsame Spec läuft dann unverändert.
 
 iOS-Simulator erreicht den Host-Synapse direkt unter `http://localhost:8008`.
 Die Debug-Build braucht `NSAppTransportSecurity` mit Exception für `localhost` —

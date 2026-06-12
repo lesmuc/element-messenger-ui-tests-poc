@@ -7,7 +7,7 @@ process.env.UI_TEST_PLATFORM = 'ios';
 // Platzhalter — Aktivierung siehe README „iOS-Tests".
 export const config: Options.Testrunner = {
   ...sharedConfig,
-  specs: ['../test/specs/ios/**/*.spec.ts'],
+  specs: ['../test/specs/*.spec.ts'],
   maxInstances: 1,
 
   // capabilities: [
