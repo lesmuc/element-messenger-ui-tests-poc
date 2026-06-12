@@ -42,14 +42,9 @@ export class AndroidRoomPage {
     const editorSelector = 'android=new UiSelector().resourceId("text_editor")';
     await b.$(editorSelector).waitForDisplayed({ timeout: 15_000 });
     await b.$(editorSelector).click();
-    await b.pause(500);
-
-    // `adb shell input` erwartet Leerzeichen als `%s`.
-    const escaped = text.replace(/ /g, '%s');
-    await b.executeScript('mobile: shell', [
-      { command: 'input', args: ['text', escaped] },
-    ]);
-    await b.pause(400);
+    // Compose re-mountet das Feld nach dem Click; `mobile: type` tippt per
+    // IME in das fokussierte Feld — unabhängig von der Element-Instanz.
+    await b.executeScript('mobile: type', [{ text }]);
 
     const sendBtn = await b.$(
       'android=new UiSelector().descriptionContains("Send")',
